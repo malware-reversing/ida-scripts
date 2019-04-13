@@ -9,7 +9,7 @@ Notes:
 # Version 1 (All functions working, assuming the return value is available as a string)
 testfunc = Appcall.proto("kernel32_GetCommandLineA", "int kernel32_GetCommandLineA();");
 address_result = testfunc();
-string_result = GetString(address_result, -1, ASCSTR_C)
+string_result = GetString(address_result, -1, ASCSTR_C);
 print string_result;
 
 # Version 2 (Windows API functions only)
@@ -18,5 +18,5 @@ print x;
 
 # Version 3 (All functions working)
 proto = "signed int sub_10002DD8();"
-anyfn = Appcall.proto(0x10002DD8, proto)
+anyfn = Appcall.proto(0x10002DD8, proto);
 anyfn();
