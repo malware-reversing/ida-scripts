@@ -8,7 +8,7 @@ Notes:
 
 # Version 1 (All functions working, assuming the return value is available as a string)
 testfunc = Appcall.proto("kernel32_GetCommandLineA", "int kernel32_GetCommandLineA();");
-address_result = testfunc(); #x = address of result
+address_result = testfunc();
 string_result = GetString(address_result, -1, ASCSTR_C)
 print string_result;
 
