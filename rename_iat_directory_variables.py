@@ -24,9 +24,6 @@ Usage:
 Notes:
     We need to use get_name instead of get_func_name. This is because get_name works 100% of the time, but get_func_name does not work unless IDA has already seen that function in the disassembly (e.g. press "g" and go to that address so that it is recognized as a function).
 '''
-
-import idautils;
-
 current_address = 0x10086C60;
 end_address = 0x10086DD4;
 
