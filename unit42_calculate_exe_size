@@ -1,0 +1,34 @@
+'''
+calculate_exe_size.py
+Description:
+    Calculates the size of a file (statically or in memory) from a particular offset based on what its PE structure says. Makes use of the pefile python library.
+Author: TGZ
+Version: 0.0.1
+Date: 15 Apr 2019
+Note:
+    Basically a copy from Unit 42's blog. Working so nicely that all I did was write a few extra useless lines.
+    We will need to change the sys.path.append directory in case of different systems. To find what the directory of our "site-packages" is, we run "print sys.path" in IDAPython and choose the directory with site-packages. Pefile which is either inbuilt or already part of FLARE VM and supposedly pip are required.
+Reference:
+    https://unit42.paloaltonetworks.com/using-idapython-to-make-your-life-easier-part-5/
+Thank you, Unit 42 :)
+'''
+
+import sys;
+sys.path.append('C:\\Program Files\\Python27\\lib\\site-packages');
+import pefile;
+
+def calculate_exe_size(begin):
+  buff = ""
+  for c in range(0, 1024):
+    buff += chr(Byte(begin+c))
+  pe = pefile.PE(data=buff)
+  total_size = 0
+  # Add total size of headers
+  total_size += pe.OPTIONAL_HEADER.SizeOfHeaders
+  # Iterate through each section and add section size
+  for section in pe.sections:
+    total_size += section.SizeOfRawData
+  return total_size
+  
+size = calculate_exe_size(0x10000000);
+print size; # In this case it prints what *should* be the size of the file (itself) according to the PE structure, but we can easily modify calculate_exe_size() to start from a different offset. Then from there we can dump whatever is in memory from that offset to offset+size...theoretically.
