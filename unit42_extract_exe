@@ -1,0 +1,15 @@
+```
+extract_exe.py
+Author: Unit 42
+Reference: https://unit42.paloaltonetworks.com/using-idapython-to-make-your-life-easier-part-5/
+'''
+
+def extract_exe(name, begin, size):
+  buff = ""
+  for c in range(0, size):
+    buff += chr(Byte(begin+c))
+  f = open(name, 'wb')
+  f.write(buff)
+  f.close()
+  
+extract_exe("test.txt", 0x10000000, 100);
