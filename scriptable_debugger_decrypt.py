@@ -43,7 +43,7 @@ run_to(after_call_to_overarching_decryption_function);
 event = GetDebuggerEvent(WFNE_SUSP, -1)
 
 # Now that all our variables are decrypted, rename them
-while iat_end > iat_start:
+while iat_end >= iat_start:
   current_func_address = read_dbg_dword(iat_start);
   function_name = get_name(current_func_address);
   if(function_name):
