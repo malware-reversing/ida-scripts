@@ -7,7 +7,7 @@ Version: 0.0.1
 Date: 21 Apr 2019
 Note:
     Use in conjunction with something similar to next() in NodeJS/Express middleware in the future so that multiple parsings can be done per function
-    See e.g. https://expressjs.com/en/guide/using-middleware.html. Much cleaner way if want to create this functionality into a kind framework.
+    See e.g. https://expressjs.com/en/guide/using-middleware.html. Much cleaner way if want to create this functionality into a kind of framework.
 '''
 
 funcs = Functions()
