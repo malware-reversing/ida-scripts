@@ -18,12 +18,12 @@ function_list = ["start", "function_1", "function_2", "function_3"]
 def next(current_function_list_index):
   nextFunction = function_list[current_function_list_index] # determine current processing function
   current_function_list_index = current_function_list_index + 1 # increment current processing function
+  # TODO: if no such function found, it means our script is buggy and this should be highlighted gracefully to user
   getattr(reflection_object, nextFunction)("test") # call the current processing function
   if(len(function_list) > current_function_list_index):
     next(current_function_list_index) # call the next processing function, if any
 
 class Obj(object):
-  # the first function argument is a reference to "o", which is useless
   def start_processing(reflection_object, arg1):
     current_function_list_index = 0
     print "start function ran"
