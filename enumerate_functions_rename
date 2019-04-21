@@ -1,0 +1,21 @@
+'''
+enumerate_functions_rename.py
+Description:
+    Enumerate all functions and rename any small functions (<5 ASM instructions) to be "small_"+function_name
+Author: TGZ
+Version: 0.0.1
+Date: 21 Apr 2019
+Note:
+    Use in conjunction with callbacks in the future so that multiple parsings can be done per function
+'''
+
+funcs = Functions()
+renameCount = 0
+for f in funcs:
+  count = 0
+  for i in FuncItems(f):
+    count = count+1
+  if(count<5):
+    set_name(f, "small_"+Name(f), 0)
+    renameCount = renameCount + 1
+print "Renamed " + str(renameCount) + " functions"
