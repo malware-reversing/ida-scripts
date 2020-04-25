@@ -1,0 +1,56 @@
+#F9 and run the script to decrypt all xrefs to a decryption function
+#Decryption_Function(&decrypted_result, length, &encrypted)
+#It takes all xrefs to a particular decryption function, goes 4 instructions back and runs the next 2 pushes and instead of using the normal &decrypted_result, we allocate memory for it because otherwise the memory allocation goes too far back.
+#Then we set our own push for the &decrypted_result via modifying esp directly, and run the decryption function.
+#Since &decrypted_result is also in eax return value, we use that instead and put it as a comment to that particular function xref.
+#If we want to make it better we would directly modify the &decrypted_result name, but that involves more work.
+#We still can see all decrypted strings via "x" (xref) and in the xrefs popup the "Text" column in IDA will show comments together with the call.
+
+deobfuscation_func_addr = 0x10017cc0
+
+VirtualAlloc = Appcall.proto("kernel32_VirtualAlloc", "LPVOID VirtualAlloc(LPVOID lpAddress, SIZE_T dwSize, DWORD  flAllocationType,  DWORD  flProtect);")
+
+def getPreviousAddress(addr):
+  return idc.FindText(addr-1, idc.SEARCH_UP | idc.SEARCH_NEXT | idc.SEARCH_REGEX, 0, 0, "\w*")
+
+def getNextAddress(addr):
+  return addr + get_item_size(addr)
+
+def getNextPush(addr):
+  return idc.FindText(addr, idc.SEARCH_DOWN | idc.SEARCH_NEXT | idc.SEARCH_REGEX, 0, 0, "push")
+
+
+def malloc():
+  newmem = VirtualAlloc(0x0, 0x1000, 0x1000, 0x40)
+  RefreshDebuggerMemory()
+  return newmem  
+  
+for xref in XrefsTo(deobfuscation_func_addr, 0):
+  print("before xref:%x",hex(xref.frm))
+  start_args_addr = xref.frm
+  start_args_addr = getPreviousAddress(start_args_addr)
+  start_args_addr = getPreviousAddress(start_args_addr)
+  start_args_addr = getPreviousAddress(start_args_addr)
+  start_args_addr = getPreviousAddress(start_args_addr)
+  print("after xref:%x",hex(start_args_addr))
+  push_one = getNextPush(start_args_addr)
+  push_two = getNextPush(getNextAddress(push_one))
+  print("push one:%x", hex(push_one))
+  print("push two:%x", hex(push_two))
+  
+  cpu.eip = start_args_addr
+  event = GetDebuggerEvent(WFNE_SUSP, -1)
+  run_to(push_two) #run 1st push up till 2nd push
+  event = GetDebuggerEvent(WFNE_SUSP, -1)
+  step_over() #run the 2nd push
+  event = GetDebuggerEvent(WFNE_SUSP, -1)
+  cpu.esp = cpu.esp-4 #add space for one more argument
+  newmem = malloc()
+  patch_dword(cpu.esp, newmem)
+  cpu.eip = xref.frm #skip last push (1st arg, as we instead modified esp)
+  event = GetDebuggerEvent(WFNE_SUSP, -1)
+  step_over() #run the deobfuscation function
+  event = GetDebuggerEvent(WFNE_SUSP, -1)
+  #now we have run it and the deobfuscated data is in eax, so we add string to comments
+  decrypted_string = GetManyBytes(cpu.eax,0xff) #0xff is more than string length for sure but it doesn't matter because it will null terminate
+  MakeRptCmt(xref.frm, decrypted_string)
