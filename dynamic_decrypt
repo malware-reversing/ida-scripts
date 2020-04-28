@@ -6,7 +6,7 @@
 #If we want to make it better we would directly modify the &decrypted_result name, but that involves more work.
 #We still can see all decrypted strings via "x" (xref) and in the xrefs popup the "Text" column in IDA will show comments together with the call.
 
-deobfuscation_func_addr = 0x1001a5e0
+deobfuscation_func_addr = 0x1001a900
 
 VirtualAlloc = Appcall.proto("kernel32_VirtualAlloc", "LPVOID VirtualAlloc(LPVOID lpAddress, SIZE_T dwSize, DWORD  flAllocationType,  DWORD  flProtect);")
 
@@ -53,5 +53,6 @@ for xref in XrefsTo(deobfuscation_func_addr, 0):
   event = GetDebuggerEvent(WFNE_SUSP, -1)
   #now we have run it and the deobfuscated data is in eax, so we add string to comments
   decrypted_string = GetManyBytes(cpu.eax,0xff) #0xff is more than string length for sure but it doesn't matter because it will null terminate
+  decrypted_string = decrypted_string.replace('\x00','') #replace null to make sure it works with unicode strings too
   MakeRptCmt(xref.frm, decrypted_string)
   print("decrypted:" + decrypted_string)
