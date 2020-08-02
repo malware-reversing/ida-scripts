@@ -1,0 +1,12 @@
+# quick and dirty script to inject shellcode space into a running program
+# run this, then copy the bytes of the shellcode into the allocated space
+# todo: read shellcode file automatically and inject into allocated memory
+
+VirtualAlloc = Appcall.proto("kernel32_VirtualAlloc", "LPVOID VirtualAlloc(LPVOID lpAddress, SIZE_T dwSize, DWORD  flAllocationType,  DWORD  flProtect);")
+
+shellcodeSize = 0x455b
+
+newmem = VirtualAlloc(0x0, shellcodeSize, 0x1000, 0x40)
+RefreshDebuggerMemory()
+
+print(hex(newmem))
