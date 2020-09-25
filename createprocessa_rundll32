@@ -1,0 +1,22 @@
+LoadLibraryA = Appcall.proto("kernel32_LoadLibraryA", "HMODULE LoadLibraryA(LPCSTR lpLibFileName);")
+GetModuleFileNameA = Appcall.proto("kernel32_GetModuleFileNameA", "DWORD GetModuleFileNameA(HMODULE hModule, LPSTR lpFilename, DWORD nSize);")
+LoadLibraryExW = Appcall.proto("kernel32_LoadLibraryExW", "HMODULE LoadLibraryExW(LPCWSTR lpLibFileName, HANDLE hFile, DWORD dwFlags);")
+GetProcAddress = Appcall.proto("kernel32_GetProcAddress", "FARPROC GetProcAddress(HMODULE hModule, LPCSTR lpProcName);")
+VirtualAlloc = Appcall.proto("kernel32_VirtualAlloc", "LPVOID VirtualAlloc(LPVOID lpAddress, SIZE_T dwSize, DWORD  flAllocationType,  DWORD  flProtect);")
+CreateProcessA = Appcall.proto("kernel32_CreateProcessA", "BOOL CreateProcessA(LPCSTR lpApplicationName, LPSTR lpCommandLine, LPSECURITY_ATTRIBUTES lpProcessAttributes, LPSECURITY_ATTRIBUTES lpThreadAttributes, BOOL bInheritHandles, DWORD dwCreationFlags, LPVOID lpEnvironment, LPCSTR lpCurrentDirectory, LPSTARTUPINFOA lpStartupInfo, LPPROCESS_INFORMATION lpProcessInformation);")
+
+dllFunctionOrdinal = "1" #modify this as required
+maxLength = 260
+dllFileNamePtr = VirtualAlloc(0x0, maxLength, 0x1000, 0x40)
+rundll32FileName = "C:\\Windows\\SysWOW64\\rundll32.exe"
+GetModuleFileNameA(0, dllFileNamePtr, maxLength)
+dllFileName = read_dbg_memory(dllFileNamePtr, maxLength).split("\x00")[0] #we need split to remove the null byte; change the string from filename\x00blablabla -> filename
+#currentDll = LoadLibraryA(dllFileName)
+#rundll32 = LoadLibraryA(rundll32FileName)
+
+si = VirtualAlloc(0x0, 100, 0x1000, 0x40)
+pi = VirtualAlloc(0x0, 100, 0x1000, 0x40)
+
+processArgs = "\"" + rundll32FileName + "\" " + dllFileName + ",#" + dllFunctionOrdinal
+
+CreateProcessA(rundll32FileName, processArgs, 0, 0, 0, 0x4, 0, 0, si, pi);
